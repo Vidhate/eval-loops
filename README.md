@@ -4,6 +4,9 @@ Skills and subagents that guide AI coding agents through the **full LLM eval lif
 
 `eval-loops` is a superset of [Hamel Husain's evals-skills](https://github.com/hamelsmu/evals-skills). It keeps Hamel's original skills and adds agnostic-core lifecycle skills, stage-aware orchestrators, and supervisor subagents that turn evals into repeatable loops. The original skills guard against common mistakes seen across 50+ companies and students in the [AI Evals course](https://maven.com/parlance-labs/evals?promoCode=evals-info-url); the additions wire them into an end-to-end process. If you're new to evals, see [questions.md](questions.md) for free fundamentals.
 
+> [!IMPORTANT]
+> **The best evals are hyper-customized to the problem at hand. No general framework — including this one — will ever beat them.** These skills exist to get you off the ground and to teach you evals in the process, so you come away with the right starting point and the knowledge to iterate. Treat them as scaffolding to outgrow, not a destination. The moment you understand your own failure modes well enough to write evals grounded in your stack, your domain, and your data, do that — they will outperform anything generic here.
+
 ## What makes this different
 
 Hamel's skills give you sharp individual tools (error analysis, judge design, calibration). `eval-loops` adds the connective tissue:
@@ -123,7 +126,7 @@ The orchestrators pick the stage from `context.md`, or you can request one expli
 
 ## Write Your Own Skills
 
-These skills encode mistakes that generalize across projects. Skills grounded in your stack, your domain, and your data will outperform them. Start here, then write your own — the [meta-skill](meta-skill.md) can help you ground custom skills.
+As the note at the top says, generic skills are scaffolding to outgrow. These encode mistakes that generalize across projects; skills grounded in your stack, your domain, and your data will outperform them. Start here, then write your own — the [meta-skill](meta-skill.md) can help you ground custom skills.
 
 ## Beyond These Skills
 
