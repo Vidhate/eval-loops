@@ -48,7 +48,7 @@ The annotation UI is build-review-interface's responsibility. This skill only ha
 
 This mode is mostly a handoff. The vendor owns the UI; this skill prepares inputs and ingests outputs.
 
-1. Use the appropriate tool-specific skill (e.g., `superset-evals-braintrust:run-annotation-session-braintrust`) if installed. It handles the vendor-specific dataset push and queue creation.
+1. Use the appropriate tool-specific skill (e.g., `eval-loops-braintrust:run-annotation-session-braintrust`) if installed. It handles the vendor-specific dataset push and queue creation.
 2. If no vendor skill is installed, walk the user through:
    - Exporting the dataset's `trace_refs` to a CSV with columns `trace_id, input_id, link_to_trace_in_vendor_ui`.
    - Telling them to label in the vendor UI, then export labels back.

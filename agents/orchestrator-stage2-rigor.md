@@ -43,7 +43,7 @@ Resume from the first incomplete step. Confirm with the user before resuming: "I
 Invoke `gather-product-context`. Block on the human sign-off checkpoint. Do not proceed until the user confirms `context.md`.
 
 ### Step 2: Tracing
-Determine if a tool-specific tracing skill is installed (e.g., `superset-evals-braintrust:instrument-tracing-braintrust`). If yes, invoke it. Else invoke `instrument-tracing`. Block on:
+Determine if a tool-specific tracing skill is installed (e.g., `eval-loops-braintrust:instrument-tracing-braintrust`). If yes, invoke it. Else invoke `instrument-tracing`. Block on:
 - Tracing smoke-test checkpoint (the skill's own gate).
 - **Tool-integration validation checkpoint**: if a vendor is wired, the user must confirm traces are visible in the vendor dashboard. If no vendor, this checkpoint is a no-op.
 
@@ -93,14 +93,14 @@ Each checkpoint is a hard block. Do not chain past them.
 
 ## Skill/Agent Inventory This Orchestrator Drives
 
-Skills: `gather-product-context`, `instrument-tracing` (or vendor flavor), `build-simulation-harness`, `manage-eval-datasets` (or vendor flavor), `run-annotation-session` (or vendor flavor), `build-auto-judge`, `evals-skills:write-judge-prompt`, `guardrails-eval-profile`, `rag-eval-profile`, `evals-skills:evaluate-rag`, `evals-skills:build-review-interface`.
+Skills: `gather-product-context`, `instrument-tracing` (or vendor flavor), `build-simulation-harness`, `manage-eval-datasets` (or vendor flavor), `run-annotation-session` (or vendor flavor), `build-auto-judge`, `eval-loops:write-judge-prompt`, `guardrails-eval-profile`, `rag-eval-profile`, `eval-loops:evaluate-rag`, `eval-loops:build-review-interface`.
 
 Subagents: `llm-council-annotator` (transitively), `error-analysis-and-triage`, `calibrate-judge-loop`, `fix-and-ablate-loop`.
 
 ## Tool-Specific Override Discovery
 
 Before invoking each step's skill, check whether a tool-specific override is installed:
-- `superset-evals-braintrust:<skill-name>`, `superset-evals-langsmith:<skill-name>`, etc.
+- `eval-loops-braintrust:<skill-name>`, `eval-loops-langsmith:<skill-name>`, etc.
 - Use the override if present; fall back to the agnostic version otherwise.
 
 ## Context Hygiene

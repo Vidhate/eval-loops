@@ -22,7 +22,7 @@ Run a stage-aware audit and produce a prioritized findings report.
 
 ### Step 1: Delegate to the base audit
 
-Run the `evals-skills:eval-audit` skill (Hamel's). It walks the six diagnostic areas: error analysis, evaluator design, judge validation, human review process, labeled data, pipeline hygiene. Capture its findings.
+Run the `eval-loops:eval-audit` skill (Hamel's). It walks the six diagnostic areas: error analysis, evaluator design, judge validation, human review process, labeled data, pipeline hygiene. Capture its findings.
 
 ### Step 2: Layer plugin-specific checks
 

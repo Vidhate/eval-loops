@@ -23,7 +23,7 @@ Invoked by:
 
 ## Read First
 
-Read `evals-skills:evaluate-rag` skill for the metric definitions (Recall@k, Precision@k, MRR, NDCG@k, Two-hop Recall@k) and chunking grid-search procedure. This profile does not duplicate that content; it slots it into the wider eval flow.
+Read `eval-loops:evaluate-rag` skill for the metric definitions (Recall@k, Precision@k, MRR, NDCG@k, Two-hop Recall@k) and chunking grid-search procedure. This profile does not duplicate that content; it slots it into the wider eval flow.
 
 ## Retrieval-vs-Generation Separation
 

@@ -26,7 +26,7 @@ Run the full error-analysis loop on a labeled dataset, then split the resulting 
 
 ### Phase 1: Apply Hamel's error-analysis skill
 
-Follow `evals-skills:error-analysis` for the core method. Specifically:
+Follow `eval-loops:error-analysis` for the core method. Specifically:
 1. Read 30-50 Fail-labeled traces with full WYSIWYG content.
 2. Capture observations (not explanations) about the FIRST thing that went wrong in each trace.
 3. After reading 30-50, pause and group similar observations into candidate failure modes.
