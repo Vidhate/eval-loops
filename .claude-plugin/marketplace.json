@@ -1,16 +1,16 @@
 {
-  "name": "hamelsmu-evals-skills",
+  "name": "eval-loops",
   "metadata": {
-    "description": "Skills for building LLM evaluations"
+    "description": "Full LLM eval lifecycle: skills + supervisor subagents + stage-aware orchestrators, built on Hamel's evals-skills"
   },
   "owner": {
-    "name": "Hamel Husain"
+    "name": "Aditya Vidhate"
   },
   "plugins": [
     {
-      "name": "evals-skills",
+      "name": "eval-loops",
       "source": "./",
-      "description": "Skills for building LLM evaluations: pipeline audit, error analysis, synthetic data generation, LLM-as-Judge design, evaluator validation, RAG evaluation, and annotation interfaces."
+      "description": "Skills and subagents for the full 9-step eval lifecycle plus Hamel's underlying skills. Tool-specific flavors ship as separate plugins."
     }
   ]
 }

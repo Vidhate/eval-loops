@@ -1,13 +1,12 @@
 {
-  "name": "evals-skills",
-  "version": "0.2.0",
-  "description": "Skills for building LLM evaluations: pipeline audit, error analysis, synthetic data generation, LLM-as-Judge design, evaluator validation, RAG evaluation, and annotation interfaces.",
+  "name": "eval-loops",
+  "version": "0.3.0",
+  "description": "Skills and subagents for the full LLM eval lifecycle (context, tracing, simulation, datasets, annotation, error analysis + triage, judge building, judge calibration, fix-and-ablate). A superset of Hamel Husain's evals-skills that adds stage-aware orchestrators (vibe / rigor), self-improving supervisor loops, an LLM-council annotator, and profile lenses for guardrails and RAG features. Tool-specific flavors (Braintrust, LangSmith, etc.) ship as separate plugins that override individual skills.",
   "author": {
-    "name": "Hamel Husain",
-    "url": "https://hamel.dev"
+    "name": "Aditya Vidhate (extending Hamel Husain's evals-skills)"
   },
-  "homepage": "https://maven.com/parlance-labs/evals?promoCode=evals-info-url",
-  "repository": "https://github.com/hamelsmu/evals-skills",
+  "homepage": "https://github.com/Vidhate/eval-loops",
+  "repository": "https://github.com/Vidhate/eval-loops",
   "license": "MIT",
-  "keywords": ["evals", "llm", "evaluation", "rag", "judge", "annotation"]
+  "keywords": ["evals", "llm", "evaluation", "rag", "judge", "annotation", "tracing", "simulation", "ablation", "llm-council"]
 }
