@@ -20,6 +20,10 @@ Drive the full 9-step eval pipeline with all human checkpoints intact. The orche
 
 None required. The orchestrator detects state from existing files and resumes from the appropriate step.
 
+## Journal
+
+Ensure `evals/journal.py` exists (bootstrap per the `manage-eval-journal` skill if missing) and `python evals/journal.py tail -n 20` before resuming — it complements the artifact-based resume table below with the *narrative* of what was tried and learned. Append a one-line entry after each step and each human checkpoint (`--actor orchestrator-stage2-rigor`, `--stage stage-2-rigor`). When a worktree-isolated subagent (e.g., `fix-and-ablate-loop`) returns a summary, the orchestrator writes its journal entry on the main worktree — the subagent must not write its own.
+
 ## Resume Logic (state detection)
 
 Before starting, check what exists:

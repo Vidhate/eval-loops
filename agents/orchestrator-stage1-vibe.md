@@ -22,6 +22,10 @@ None required. The orchestrator interviews from scratch if `evals/context.md` do
 
 ## Procedure
 
+### Step 0: Journal
+
+Ensure the engagement journal exists and read it before doing anything else. Bootstrap `evals/journal.py` per the `manage-eval-journal` skill if missing, then `python evals/journal.py tail -n 20` to recover what prior runs did and discovered. Use this to skip re-asking the user things the journal already answers. After each step below, append a one-line entry (`--actor orchestrator-stage1-vibe`, `--stage stage-1-vibe`).
+
 ### Step 1: Detect or set stage
 
 If `evals/context.md` exists and its Stage field is `stage-1-vibe`, proceed.

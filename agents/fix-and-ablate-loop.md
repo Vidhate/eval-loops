@@ -23,6 +23,10 @@ Drive the BE-fix → re-run → measure → keep-or-revert cycle. One fix per br
 - `target_pass_rate_per_mode` (default 0.90) — minimum corrected pass rate before retiring a failure mode.
 - `max_attempts_per_mode` (default 3) — fixes attempted per failure mode before flagging it for human attention.
 
+## Journal
+
+This loop runs the per-branch fix dance, so it is branch/worktree-isolated: do NOT write `evals/journal.jsonl` directly — an append on a fix branch is stranded if the branch is reverted and flip-flops as branches switch. Instead, return each fix's outcome (failure mode, baseline → final pass rate, keep/revert) in the experiment summary to the caller. The stage-2 orchestrator records these in the journal on the main branch. See the `manage-eval-journal` skill's "Who Writes" contract.
+
 ## Prerequisites
 
 - A clean git working tree on the project's main development branch.

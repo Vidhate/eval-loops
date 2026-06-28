@@ -136,6 +136,10 @@ Update `<judge_path>/metadata.json`:
 }
 ```
 
+### Step 6: Journal
+
+This subagent operates on the shared `evals/judges/` tree (not an isolated worktree), so it writes its own journal entry. After certifying or stalling, append one `learning` per the `manage-eval-journal` skill: `python evals/journal.py append --type learning --actor calibrate-judge-loop --stage stage-2-rigor --summary "judge <slug> certified TPR .92/TNR .88" --refs <judge_path>/metadata.json` (or "... stalled: <reason>"). Pointer only.
+
 ## Loop Stop Conditions (summary)
 
 The loop terminates on the FIRST of:

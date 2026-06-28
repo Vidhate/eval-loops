@@ -27,16 +27,31 @@ If any of those flip, graduate to stage 2: run `gather-product-context` (set Sta
 
 ### Step 1: Quick context (5 minutes, in chat)
 
+First, recover prior context from the journal. Bootstrap `evals/journal.py` per the `manage-eval-journal` skill if missing, then `python evals/journal.py tail -n 20 --stage stage-1-vibe`. If earlier runs already discovered failures, surface them instead of asking Q2 cold — "Last time we found X and Y breaking; want to re-test those plus broader coverage?" The journal is what lets discovered failures, not the user's fresh guess, seed the loop.
+
 If `evals/context.md` doesn't exist, ask the user three questions only:
 1. What does the agent do, in one sentence?
-2. What's one specific failure you're worried about right now?
+2. What are the most pressing ways you suspect your agent could fail? Note: your answer will focus the eval loop on the failures you name. If you don't have strong opinions, say so — we'll instead discover failures by exercising the agent across realistic usage.
 3. What's the entry point — file path or endpoint?
+
+Treat any failure the user names in Q2 as a *hypothesis to investigate*, never as the whole test surface. The user's answer sets the balance of the input set in Step 2, not its entirety.
 
 Write a minimal `evals/context.md` with just Vision, Agent Surface Area, and Stage = `stage-1-vibe`. Skip the other sections — they can be filled in later if the user graduates.
 
-### Step 2: Generate ~10 inputs in chat
+### Step 2: Generate inputs in chat
 
-In the chat window, propose 10 natural-language inputs that target the worry from Q2. Use the dimension/tuple method from `generate-synthetic-data` but keep it lightweight: 3 dimensions × ~3 values each, then sample 10 tuples.
+Default to ~10 inputs. Use the dimension/tuple method from `generate-synthetic-data` but keep it lightweight: 3 dimensions × ~3 values each, then sample tuples.
+
+Split the input budget by what the user said in Q2 — never let one stated failure consume the whole set, or the loop clamps to it and discovers nothing else:
+
+- **User named failures:** ~60% targeted at the stated failure(s), ~30% general coverage of realistic usage, ~10% adversarial. The non-targeted slots are what let *other* failures surface.
+- **User had no strong opinion (discovery):** ~80% coverage, ~20% adversarial. Generate coverage by spanning the realistic usage space (persona × task × query-clarity), then let failures emerge from reading traces in Steps 5–6. Do NOT pre-guess failures and generate inputs for them — that just moves the bias from the user to you.
+
+For the discovery path, if Q1 didn't give enough to span usage, ask one or two follow-ups aimed *past* Q1 — typical inputs, who uses it, the 2–3 most common tasks — not "what does it do" again.
+
+Adversarial inputs should be subtle and context-appropriate to what the agent actually does — an indirect constraint the agent might quietly drop, an out-of-scope ask phrased plausibly, a real-world edge case — not a generic "ignore your instructions" jailbreak.
+
+**Sizing:** ~10 is the default and the preference. If the user named many distinct failures, or the agent's usage surface is genuinely large, a fair sample needs more — call this out explicitly ("Covering these fairly needs ~25 inputs; I'll generate that and we'll review in batches of ~10") and scale up. Decouple generation from review: generating more than ~10 is fine, but eyeballing more than ~10 in one sitting is not — review in batches (see Chat Rendering Rules).
 
 Show the inputs as a markdown table. Ask the user to thumbs-up the list or edit it inline.
 
@@ -107,6 +122,8 @@ Read the Fail notes back to the user as a list. Ask: "Do any of these look like 
 
 Do NOT formalize this into a failure-mode catalog. That's stage-2 work. The output here is at most: "3 of 10 fails look like missing filter handling in the SQL tool."
 
+Append the pattern to the journal as a `learning` so the next run starts from it instead of re-asking the user: `python evals/journal.py append --type learning --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "3/10 fails: SQL drops user filters" --refs runs/vibe_<ts>/`.
+
 ### Step 7: Recommend the fix
 
 Pick the single highest-frequency Fail pattern. State it. Suggest one specific code or prompt change. Stop there.
@@ -126,6 +143,8 @@ After the user makes a change, re-run steps 3-7 against the *same* inputs. Rende
 ```
 
 If overall Pass count goes up — the fix helped, continue. If it goes down — revert the change, try another.
+
+Record the change and its effect as an `action`: `python evals/journal.py append --type action --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "added 'preserve constraints' to SQL prompt; pass 7/10 -> 9/10" --refs runs/vibe_<ts>/`.
 
 ## Chat Rendering Rules
 
@@ -157,4 +176,4 @@ When graduating, hand off: keep `evals/context.md` (update Stage), promote `vibe
 - Running this skill at stage 2 or 3 just because it's faster. Skipping rigor at those stages costs more downstream than it saves.
 - Truncating storage on disk to make rendering cleaner. Display truncation only — full WYSIWYG in JSON.
 - Building a judge inside this skill. If the user wants a judge, they've left vibe-eval territory — graduate.
-- Generating 100 inputs because "more is better." Vibe review past ~10 traces in one sitting is unreliable.
+- Generating a large input set for vanity ("more is better"). Scale past ~10 only when genuine coverage demands it, and review in batches of ~10 — vibe review of more than ~10 traces in one sitting is unreliable.

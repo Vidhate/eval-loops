@@ -170,6 +170,10 @@ Reviewed N traces (N_pass Pass, N_fail Fail).
 
 This subagent reads many traces. Do not load all traces into one prompt. Iterate, summarize observations, write to disk, free working memory between traces. Return only the report path and a 5-bullet summary to the caller.
 
+## Journal
+
+This subagent operates on the shared `evals/` tree (not an isolated worktree), so it writes its own journal entry. After `REPORT.md` is written, append one `learning` per the `manage-eval-journal` skill: `python evals/journal.py append --type learning --actor error-analysis-and-triage --stage stage-2-rigor --summary "N failure modes; M spec / K gen" --refs <output_dir>/REPORT.md`. Pointer only — do not log the catalog body.
+
 ## Anti-Patterns
 
 - Pre-loading failure modes from profile catalogs as defaults. Always observe first.
