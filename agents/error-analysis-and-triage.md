@@ -172,7 +172,7 @@ This subagent reads many traces. Do not load all traces into one prompt. Iterate
 
 ## Journal
 
-This subagent operates on the shared `evals/` tree (not an isolated worktree), so it writes its own journal entry. After `REPORT.md` is written, append one `learning` per the `manage-eval-journal` skill: `python evals/journal.py append --type learning --actor error-analysis-and-triage --stage stage-2-rigor --summary "N failure modes; M spec / K gen" --refs <output_dir>/REPORT.md`. Pointer only — do not log the catalog body.
+This subagent operates on the shared `evals/` tree (not an isolated worktree), so it writes its own journal entry. After `REPORT.md` is written, if `evals/journal.py` exists, append one `learning`: `python evals/journal.py append --type learning --actor error-analysis-and-triage --stage stage-2-rigor --summary "N failure modes; M spec / K gen" --refs <output_dir>/REPORT.md`. Pointer only — do not log the catalog body. If `evals/journal.py` is absent, skip journaling — do NOT create it (subagents cannot install the bundled helper; a skill does that at engagement start).
 
 ## Anti-Patterns
 

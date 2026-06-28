@@ -22,13 +22,16 @@ A single append-only log, `evals/journal.jsonl`, is the memory of the eval engag
 
 ## Bootstrap
 
-The helper script ships alongside this skill as `journal.py`. At the start of an engagement (orchestrators do this; any skill may), ensure it exists in the project:
+The helper script ships alongside this skill as `journal.py`. Copy it into the project — **never rewrite it by hand**; a reconstructed copy loses the atomic-append (`flock` + single-line) and `</`-escape guarantees that are the entire point of the helper.
 
 ```bash
-test -f evals/journal.py || cp "<this skill dir>/journal.py" evals/journal.py
+mkdir -p evals
+test -f evals/journal.py || cp "${CLAUDE_SKILL_DIR}/journal.py" evals/journal.py
 ```
 
-If the source path can't be resolved at runtime, recreate `evals/journal.py` from the copy in this skill's directory. It is stdlib-only (POSIX, macOS/Linux) and has no dependencies.
+`${CLAUDE_SKILL_DIR}` resolves to this skill's own directory at runtime — it is the only reliable way to locate a bundled file. If the copy fails (e.g., the variable is unset in some runtime), surface the error and stop; do NOT author a replacement `journal.py` from the CLI signature. It is stdlib-only (POSIX, macOS/Linux) and has no dependencies.
+
+**Who can install it:** only a *skill* can resolve `${CLAUDE_SKILL_DIR}`. Subagents (the orchestrators, `error-analysis-and-triage`, `calibrate-judge-loop`, `fix-and-ablate-loop`) have no path to bundled plugin files, so they must **never** create `journal.py` — they only call an `evals/journal.py` that a skill already installed. The install happens in the first skill of any engagement: `gather-product-context` (stage 2) or `vibe-eval-fast-loop` (stage 1), each copying from a sibling path `${CLAUDE_SKILL_DIR}/../manage-eval-journal/journal.py`. If a subagent finds `evals/journal.py` missing, it skips journaling rather than reconstructing it.
 
 ## Schema
 

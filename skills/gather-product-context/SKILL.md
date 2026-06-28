@@ -24,6 +24,15 @@ Interview the user and inspect the codebase to produce `evals/context.md`, a sin
 
 `evals/context.md` at the repo root. Create the `evals/` directory if missing.
 
+As the first skill in a stage-2 engagement, also install the eval journal here so downstream subagents (which cannot resolve bundled plugin paths) can use it. Copy the shipped helper — do not rewrite it:
+
+```bash
+mkdir -p evals
+test -f evals/journal.py || cp "${CLAUDE_SKILL_DIR}/../manage-eval-journal/journal.py" evals/journal.py
+```
+
+See the `manage-eval-journal` skill for the full contract.
+
 ## Required Sections
 
 The output file MUST contain exactly these sections, in this order. Do not add or rename sections — downstream skills parse them by heading.

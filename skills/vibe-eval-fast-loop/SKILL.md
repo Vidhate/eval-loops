@@ -27,7 +27,7 @@ If any of those flip, graduate to stage 2: run `gather-product-context` (set Sta
 
 ### Step 1: Quick context (5 minutes, in chat)
 
-First, recover prior context from the journal. Bootstrap `evals/journal.py` per the `manage-eval-journal` skill if missing, then `python evals/journal.py tail -n 20 --stage stage-1-vibe`. If earlier runs already discovered failures, surface them instead of asking Q2 cold — "Last time we found X and Y breaking; want to re-test those plus broader coverage?" The journal is what lets discovered failures, not the user's fresh guess, seed the loop.
+First, recover prior context from the journal. Install the shipped helper if missing — copy it, do not rewrite it: `mkdir -p evals && test -f evals/journal.py || cp "${CLAUDE_SKILL_DIR}/../manage-eval-journal/journal.py" evals/journal.py`. Then `python evals/journal.py tail -n 20 --stage stage-1-vibe`. If earlier runs already discovered failures, surface them instead of asking Q2 cold — "Last time we found X and Y breaking; want to re-test those plus broader coverage?" The journal is what lets discovered failures, not the user's fresh guess, seed the loop.
 
 If `evals/context.md` doesn't exist, ask the user three questions only:
 1. What does the agent do, in one sentence?

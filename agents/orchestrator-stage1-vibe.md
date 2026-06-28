@@ -24,7 +24,9 @@ None required. The orchestrator interviews from scratch if `evals/context.md` do
 
 ### Step 0: Journal
 
-Ensure the engagement journal exists and read it before doing anything else. Bootstrap `evals/journal.py` per the `manage-eval-journal` skill if missing, then `python evals/journal.py tail -n 20` to recover what prior runs did and discovered. Use this to skip re-asking the user things the journal already answers. After each step below, append a one-line entry (`--actor orchestrator-stage1-vibe`, `--stage stage-1-vibe`).
+Read the engagement journal before doing anything else: `python evals/journal.py tail -n 20` to recover what prior runs did and discovered, so you can skip re-asking the user things the journal already answers. After each step below, append a one-line entry (`--actor orchestrator-stage1-vibe`, `--stage stage-1-vibe`).
+
+`evals/journal.py` is installed by the `vibe-eval-fast-loop` skill (Step 1), which you invoke next — as a subagent you cannot resolve bundled plugin paths, so **never author `journal.py` yourself**. If it is still missing when you need it, skip journaling for that step rather than reconstructing it.
 
 ### Step 1: Detect or set stage
 
