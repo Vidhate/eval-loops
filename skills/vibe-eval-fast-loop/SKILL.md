@@ -27,7 +27,7 @@ If any of those flip, graduate to stage 2: run `gather-product-context` (set Sta
 
 ### Step 1: Quick context (5 minutes, in chat)
 
-First, recover prior context from the journal. Install the shipped helper if missing — copy it, do not rewrite it: `mkdir -p evals && test -f evals/journal.py || cp "${CLAUDE_SKILL_DIR}/../manage-eval-journal/journal.py" evals/journal.py`. Then `python evals/journal.py tail -n 20 --stage stage-1-vibe`. If earlier runs already discovered failures, surface them instead of asking Q2 cold — "Last time we found X and Y breaking; want to re-test those plus broader coverage?" The journal is what lets discovered failures, not the user's fresh guess, seed the loop.
+First, recover prior context from the journal. Install the shipped helper if missing — copy it, do not rewrite it: `mkdir -p evals && test -f evals/journal.py || cp "${CLAUDE_SKILL_DIR}/../manage-eval-journal/journal.py" evals/journal.py`. Then `python3 evals/journal.py tail -n 20 --stage stage-1-vibe`. If earlier runs already discovered failures, surface them instead of asking Q2 cold — "Last time we found X and Y breaking; want to re-test those plus broader coverage?" The journal is what lets discovered failures, not the user's fresh guess, seed the loop.
 
 If `evals/context.md` doesn't exist, ask the user three questions only:
 1. What does the agent do, in one sentence?
@@ -95,7 +95,7 @@ Read the Fail notes back to the user as a list. Ask: "Do any of these look like 
 
 Do NOT formalize this into a failure-mode catalog. That's stage-2 work. The output here is at most: "3 of 10 fails look like missing filter handling in the SQL tool."
 
-Append the pattern to the journal as a `learning` so the next run starts from it instead of re-asking the user: `python evals/journal.py append --type learning --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "3/10 fails: SQL drops user filters" --refs runs/vibe_<ts>/`.
+Append the pattern to the journal as a `learning` so the next run starts from it instead of re-asking the user: `python3 evals/journal.py append --type learning --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "3/10 fails: SQL drops user filters" --refs runs/vibe_<ts>/`.
 
 ### Step 7: Recommend the fix
 
@@ -117,7 +117,7 @@ After the user makes a change, re-run steps 3-7 against the *same* inputs. Rende
 
 If overall Pass count goes up — the fix helped, continue. If it goes down — revert the change, try another.
 
-Record the change and its effect as an `action`: `python evals/journal.py append --type action --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "added 'preserve constraints' to SQL prompt; pass 7/10 -> 9/10" --refs runs/vibe_<ts>/`.
+Record the change and its effect as an `action`: `python3 evals/journal.py append --type action --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "added 'preserve constraints' to SQL prompt; pass 7/10 -> 9/10" --refs runs/vibe_<ts>/`.
 
 ## Rendering Rules
 

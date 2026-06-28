@@ -22,7 +22,7 @@ None required. The orchestrator detects state from existing files and resumes fr
 
 ## Journal
 
-`python evals/journal.py tail -n 20` before resuming — it complements the artifact-based resume table below with the *narrative* of what was tried and learned. Append a one-line entry after each step and each human checkpoint (`--actor orchestrator-stage2-rigor`, `--stage stage-2-rigor`). When a worktree-isolated subagent (e.g., `fix-and-ablate-loop`) returns a summary, the orchestrator writes its journal entry on the main worktree — the subagent must not write its own.
+`python3 evals/journal.py tail -n 20` before resuming — it complements the artifact-based resume table below with the *narrative* of what was tried and learned. Append a one-line entry after each step and each human checkpoint (`--actor orchestrator-stage2-rigor`, `--stage stage-2-rigor`). When a worktree-isolated subagent (e.g., `fix-and-ablate-loop`) returns a summary, the orchestrator writes its journal entry on the main worktree — the subagent must not write its own.
 
 `evals/journal.py` is installed by the `gather-product-context` skill (Step 1). As a subagent you cannot resolve bundled plugin paths, so **never author `journal.py` yourself** — if it is missing, the first step hasn't installed it yet; skip journaling for that step rather than reconstructing it.
 

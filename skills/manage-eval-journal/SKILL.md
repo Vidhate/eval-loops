@@ -53,7 +53,7 @@ One JSON object per line. The helper writes exactly these fields:
 Append through the helper:
 
 ```bash
-python evals/journal.py append --type learning --actor <skill-name> \
+python3 evals/journal.py append --type learning --actor <skill-name> \
   --stage <stage> --summary "one line" --refs path/a,path/b
 ```
 
@@ -71,10 +71,10 @@ Do NOT log: every tool call, every file write, intermediate scratch work, or the
 On startup, recover context tail-first — keep it small, page back only if the recent window is insufficient:
 
 ```bash
-python evals/journal.py tail -n 20                 # most recent 20, newest last
-python evals/journal.py tail -n 50 --stage stage-2-rigor
-python evals/journal.py tail --type learning --grep judge
-python evals/journal.py tail --since 2026-06-01T00:00:00Z
+python3 evals/journal.py tail -n 20                 # most recent 20, newest last
+python3 evals/journal.py tail -n 50 --stage stage-2-rigor
+python3 evals/journal.py tail --type learning --grep judge
+python3 evals/journal.py tail --since 2026-06-01T00:00:00Z
 ```
 
 Start with the default `-n 20`. Go further back (larger `-n`, or `--since`) only when the recent window doesn't explain the current state. Filter with `--stage`, `--type`, or `--grep` to avoid pulling irrelevant history into context.

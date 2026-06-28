@@ -138,7 +138,7 @@ Update `<judge_path>/metadata.json`:
 
 ### Step 6: Journal
 
-This subagent operates on the shared `evals/judges/` tree (not an isolated worktree), so it writes its own journal entry. After certifying or stalling, if `evals/journal.py` exists, append one `learning`: `python evals/journal.py append --type learning --actor calibrate-judge-loop --stage stage-2-rigor --summary "judge <slug> certified TPR .92/TNR .88" --refs <judge_path>/metadata.json` (or "... stalled: <reason>"). Pointer only. If `evals/journal.py` is absent, skip journaling — do NOT create it (a skill installs the bundled helper at engagement start).
+This subagent operates on the shared `evals/judges/` tree (not an isolated worktree), so it writes its own journal entry. After certifying or stalling, if `evals/journal.py` exists, append one `learning`: `python3 evals/journal.py append --type learning --actor calibrate-judge-loop --stage stage-2-rigor --summary "judge <slug> certified TPR .92/TNR .88" --refs <judge_path>/metadata.json` (or "... stalled: <reason>"). Pointer only. If `evals/journal.py` is absent, skip journaling — do NOT create it (a skill installs the bundled helper at engagement start).
 
 ## Loop Stop Conditions (summary)
 

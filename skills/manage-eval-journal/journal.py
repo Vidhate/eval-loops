@@ -8,22 +8,30 @@ All writes go through `append` so that:
   - concurrent writers cannot interleave (atomic O_APPEND + flock, entries
     kept well under PIPE_BUF).
 
-Stdlib only. POSIX (macOS / Linux).
+Stdlib only, zero configuration: the journal lives next to this script
+(evals/journal.jsonl) regardless of project or working directory, so no
+per-project customization is ever needed. Cross-platform: on POSIX
+(macOS/Linux) it adds flock for cross-process safety; on platforms without
+fcntl (e.g. Windows) it falls back to atomic O_APPEND writes.
 
-  python evals/journal.py append --type learning --actor vibe-eval-fast-loop \
+  python3 evals/journal.py append --type learning --actor vibe-eval-fast-loop \
       --stage stage-1-vibe --summary "3/10 failed: SQL drops user filters" \
       --refs runs/vibe_142/
 
-  python evals/journal.py tail -n 20
-  python evals/journal.py tail -n 50 --stage stage-2-rigor --type learning
+  python3 evals/journal.py tail -n 20
+  python3 evals/journal.py tail -n 50 --stage stage-2-rigor --type learning
 """
 import argparse
-import fcntl
 import json
 import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+try:
+    import fcntl  # POSIX advisory locking; absent on Windows
+except ImportError:  # pragma: no cover
+    fcntl = None
 
 JOURNAL = Path(__file__).resolve().parent / "journal.jsonl"
 MAX_SUMMARY = 500
@@ -55,10 +63,12 @@ def append(args):
     # writers so two parallel appends can never interleave.
     fd = os.open(JOURNAL, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o644)
     try:
-        fcntl.flock(fd, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(fd, fcntl.LOCK_EX)
         os.write(fd, line.encode("utf-8"))
     finally:
-        fcntl.flock(fd, fcntl.LOCK_UN)
+        if fcntl is not None:
+            fcntl.flock(fd, fcntl.LOCK_UN)
         os.close(fd)
     print(entry["ts"])
 
