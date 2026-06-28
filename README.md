@@ -101,7 +101,7 @@ The skills map onto a 9-step lifecycle. It's a loop, not a one-way pipeline — 
 | 7a. Judge prompts | `write-judge-prompt` | 2 | Design LLM-as-Judge evaluators for subjective criteria code can't check |
 | 8. Calibration | `validate-evaluator` | 2 | Calibrate an LLM judge against human labels using data splits, TPR/TNR, and bias correction |
 | 9. RAG eval | `evaluate-rag` | 2 | Evaluate retrieval and generation quality in RAG pipelines |
-| Fast loop | `vibe-eval-fast-loop` | 1 | Run a small input set and render traces as markdown tables in chat for quick pass/fail signal |
+| Fast loop | `vibe-eval-fast-loop` | 1 | Run a small input set and review traces verbatim in a throwaway HTML dashboard (paste labels back to chat) for quick pass/fail signal |
 | Journal | `manage-eval-journal` | Any | Append-only `evals/journal.jsonl` of actions and learnings so re-runs and fresh sessions recover prior context instead of re-asking |
 | Audit ⭐ | `audit-eval-pipeline` | Any | **Entry point.** Stage-aware audit of an existing pipeline, cross-checked against artifacts from the other skills |
 | Audit (core) | `eval-audit` | Any | The underlying audit: surface problems — missing error analysis, unvalidated judges, vanity metrics |

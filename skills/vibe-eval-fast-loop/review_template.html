@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vibe Eval Review</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; margin: 0; background: #f6f7f9; color: #1a1a1a; }
+  header { position: sticky; top: 0; z-index: 10; display: flex; gap: 16px; align-items: center; padding: 12px 20px; background: #fff; border-bottom: 1px solid #ddd; }
+  header h1 { font-size: 16px; margin: 0; }
+  .counts { color: #555; font-size: 13px; }
+  button { font: inherit; padding: 8px 14px; border: 1px solid #888; border-radius: 6px; background: #fff; cursor: pointer; }
+  button.primary { background: #1a7f37; color: #fff; border-color: #1a7f37; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  .hint { background: #fff8c5; border: 1px solid #eac54f; border-radius: 6px; padding: 10px 14px; margin: 0 0 16px; }
+  .trace { background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+  .trace.pass { border-left: 4px solid #1a7f37; }
+  .trace.fail { border-left: 4px solid #cf222e; }
+  .trace.unsure { border-left: 4px solid #9a6700; }
+  .thead { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #fafbfc; border-bottom: 1px solid #eee; }
+  .thead .id { font-weight: 600; }
+  .thead .err-flag { color: #cf222e; font-weight: 600; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; }
+  .col { padding: 12px 14px; min-width: 0; }
+  .col + .col { border-left: 1px solid #eee; }
+  .col h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #666; }
+  .foot { padding: 12px 14px; border-top: 1px solid #eee; }
+  details { margin-top: 6px; }
+  summary { cursor: pointer; color: #0969da; font-size: 13px; }
+  pre { white-space: pre-wrap; word-break: break-word; background: #f6f8fa; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin: 6px 0 0; overflow: auto; }
+  .vibe { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+  .vibe label { padding: 4px 12px; border: 1px solid #bbb; border-radius: 6px; cursor: pointer; user-select: none; }
+  .vibe input { display: none; }
+  .vibe input:checked + span { font-weight: 800; }
+  .vibe label:has(input:checked) { background: #eef; border-color: #88a; }
+  .note { width: 100%; margin-top: 8px; padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+  #out { width: 100%; height: 140px; margin-top: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Vibe Eval Review</h1>
+  <span class="counts" id="counts"></span>
+  <button class="primary" id="copyBtn" style="margin-left:auto">Copy Results as JSON</button>
+</header>
+<div class="wrap">
+  <div class="hint">
+    Mark each trace <b>P</b>ass / <b>F</b>ail / <b>?</b> (unsure), and add a one-line note for fails.
+    When done, click <b>Copy Results as JSON</b> and <b>paste the result into your agent chat</b> to continue the eval loop.
+  </div>
+  <div id="traces"></div>
+  <textarea id="out" readonly></textarea>
+</div>
+
+<!-- The agent replaces __RESULTS_JSON__ with the verbatim contents of results.json
+     (escaping the substring "</" to "<\/" so embedded code/HTML cannot break this block).
+     Data is read as text and rendered via textContent, so it is shown exactly as stored. -->
+<script id="results" type="application/json">__RESULTS_JSON__</script>
+<script>
+  const data = JSON.parse(document.getElementById("results").textContent);
+  const tracesEl = document.getElementById("traces");
+  const countsEl = document.getElementById("counts");
+
+  function fmt(v) {
+    if (v === null || v === undefined) return "";
+    return typeof v === "string" ? v : JSON.stringify(v, null, 2);
+  }
+
+  data.forEach((row, idx) => {
+    const tc = row.tool_calls || [];
+    const el = document.createElement("div");
+    el.className = "trace";
+    el.innerHTML = `
+      <div class="thead">
+        <span class="id">#${idx + 1} &middot; ${fmt(row.input_id)}</span>
+        ${row.error ? '<span class="err-flag">error</span>' : ""}
+        <span class="vibe">
+          <label><input type="radio" name="v${idx}" value="P"><span>P</span></label>
+          <label><input type="radio" name="v${idx}" value="F"><span>F</span></label>
+          <label><input type="radio" name="v${idx}" value="?"><span>?</span></label>
+        </span>
+      </div>
+      <div class="cols">
+        <div class="col"><h3>Input</h3><pre class="in"></pre></div>
+        <div class="col"><h3>Output</h3><pre class="out-pre"></pre></div>
+      </div>
+      <div class="foot">
+        <details><summary>Tool calls (${tc.length})</summary><pre class="tc"></pre></details>
+        ${row.error ? '<details open><summary>Error</summary><pre class="err"></pre></details>' : ""}
+        <input class="note" placeholder="Note (especially for fails)">
+      </div>`;
+    // Verbatim, exact: set via textContent so nothing is interpreted as HTML.
+    el.querySelector(".in").textContent = fmt(row.input);
+    el.querySelector(".out-pre").textContent = fmt(row.output);
+    el.querySelector(".tc").textContent = tc.length ? tc.map((t) => fmt(t)).join("\n\n") : "(none)";
+    if (row.error) el.querySelector(".err").textContent = fmt(row.error);
+
+    el.querySelectorAll(`input[name="v${idx}"]`).forEach((r) => {
+      r.addEventListener("change", () => {
+        el.classList.remove("pass", "fail", "unsure");
+        el.classList.add(r.value === "P" ? "pass" : r.value === "F" ? "fail" : "unsure");
+        updateCounts();
+      });
+    });
+    tracesEl.appendChild(el);
+  });
+
+  function collect() {
+    return data.map((row, idx) => {
+      const checked = document.querySelector(`input[name="v${idx}"]:checked`);
+      const note = tracesEl.children[idx].querySelector(".note").value.trim();
+      return { input_id: row.input_id, vibe: checked ? checked.value : "", note };
+    });
+  }
+
+  function updateCounts() {
+    const labels = collect();
+    const c = { P: 0, F: 0, "?": 0, "": 0 };
+    labels.forEach((l) => (c[l.vibe] = (c[l.vibe] || 0) + 1));
+    countsEl.textContent = `${data.length} traces · ${data.length - c[""]} labeled · ${c.P} pass · ${c.F} fail · ${c["?"]} unsure`;
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    const json = JSON.stringify({ vibe_labels: collect() }, null, 2);
+    const out = document.getElementById("out");
+    out.value = json;
+    out.style.display = "block";
+    out.select();
+    const done = () => (document.getElementById("copyBtn").textContent = "Copied — paste into chat");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(json).then(done, () => {
+        document.getElementById("copyBtn").textContent = "Select the box below & copy manually";
+      });
+    } else {
+      document.getElementById("copyBtn").textContent = "Select the box below & copy manually";
+    }
+  });
+
+  updateCounts();
+</script>
+</body>
+</html>

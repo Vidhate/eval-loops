@@ -12,7 +12,7 @@ description: >
 
 # Vibe Eval Fast Loop
 
-Cheap, fast pass/fail signal in a single chat thread. The user is the alias domain expert, the chat window is the review UI, the loop is iteration → eyeball → adjust.
+Cheap, fast pass/fail signal for a solo developer. The user is the alias domain expert, a throwaway HTML dashboard is the review UI, the loop is iteration → eyeball → adjust.
 
 ## When This Skill Is Right
 
@@ -51,7 +51,7 @@ For the discovery path, if Q1 didn't give enough to span usage, ask one or two f
 
 Adversarial inputs should be subtle and context-appropriate to what the agent actually does — an indirect constraint the agent might quietly drop, an out-of-scope ask phrased plausibly, a real-world edge case — not a generic "ignore your instructions" jailbreak.
 
-**Sizing:** ~10 is the default and the preference. If the user named many distinct failures, or the agent's usage surface is genuinely large, a fair sample needs more — call this out explicitly ("Covering these fairly needs ~25 inputs; I'll generate that and we'll review in batches of ~10") and scale up. Decouple generation from review: generating more than ~10 is fine, but eyeballing more than ~10 in one sitting is not — review in batches (see Chat Rendering Rules).
+**Sizing:** ~10 is the default and the preference. If the user named many distinct failures, or the agent's usage surface is genuinely large, a fair sample needs more — call this out explicitly ("Covering these fairly needs ~25 inputs; I'll generate that and we'll review in batches of ~10") and scale up. Decouple generation from review: generating more than ~10 is fine, but eyeballing more than ~10 in one sitting is not — review in batches (see Rendering Rules).
 
 Show the inputs as a markdown table. Ask the user to thumbs-up the list or edit it inline.
 
@@ -71,50 +71,23 @@ Save the run as `evals/runs/vibe_<timestamp>/results.json` with the schema:
 ]
 ```
 
-### Step 4: Render results in chat
+### Step 4: Generate the HTML review dashboard
 
-Render results as a chat-window-friendly markdown table. Constraints:
+Trace review and annotation happen in a standalone HTML file, not the chat. This keeps the developer's terminal from drowning in large traces while still showing every input and output in full.
 
-- **Truncate display only, never storage.** The JSON file is full WYSIWYG. The chat table truncates long fields with `...` and a `[full]` link to the relevant line in the JSON.
-- **One row per input.** Columns: `#`, `Input (truncated)`, `Output (truncated)`, `Tool Calls`, `Vibe`.
-- **Tool Calls column** is a count + collapsed list, e.g., `2: [search_db, send_email]`.
-- **Vibe column** is empty — the user fills it as they read.
+1. Copy the template `review_template.html` shipped with this skill to `evals/runs/vibe_<timestamp>/review.html` (a throwaway artifact — it lives under `evals/` and is regenerable from `results.json`).
+2. Replace the placeholder `__RESULTS_JSON__` with the **verbatim contents of `results.json`** — copy the file's bytes; do not retype, summarize, or abbreviate them. Before inserting, escape the substring `</` to `<\/` (a JSON-safe escape that renders identically) so code or HTML inside a trace can't break the page.
+3. Tell the user the path and to open it in a browser (e.g., `open evals/runs/vibe_<timestamp>/review.html` on macOS).
 
-Example:
+The dashboard renders one collapsible card per trace with the **exact** input, output, and tool calls — read from the embedded JSON via `textContent`, never reconstructed — plus P/F/? controls and a note field. Do not paste full trace contents into the chat; the HTML is the review surface.
 
-```
-| # | Input | Output | Tools | Vibe |
-|---|-------|--------|-------|------|
-| 1 | "Find me a 2br under $400k pet-friendly" | "I found 3 options: ..." | 1: [search_db] | |
-| 2 | "Schedule a tour for tomorrow" | "I'd suggest 2pm..." | 0 | |
-```
+### Step 5: Collect annotations via paste-back
 
-After the table, list each input with its full output as a fenced block, so the user can read details without leaving chat:
+The user labels each trace in the dashboard (P/F/?, note for fails), clicks **Copy Results as JSON**, and pastes the result into the chat.
 
-```
-### #1 — Full output
-**Input:** Find me a 2br under $400k pet-friendly
-**Output:**
-> I found 3 options matching your criteria:
-> 1. ...
-**Tool calls:**
-- search_db({"price_max": 400000, "beds": 2, "pets": true}) → [...]
-```
+The pasted blob is labels only — `{"vibe_labels": [{"input_id", "vibe", "note"}, ...]}`, keyed by `input_id`. Write it to `evals/runs/vibe_<timestamp>/vibe_labels.json`, matching each label to its trace by `input_id`.
 
-### Step 5: Vibe annotation
-
-Ask the user: "Mark each row as P (pass), F (fail), or ? (unsure). For Fails, one-line note on what went wrong."
-
-Capture inline:
-
-```
-| # | Vibe | Note |
-|---|------|------|
-| 1 | F | Missed pet-friendly filter |
-| 2 | P |  |
-```
-
-Save annotations into `evals/runs/vibe_<timestamp>/vibe_labels.json`.
+If the user pasted nothing or only partial labels, ask them to finish in the dashboard and re-copy — do not infer labels yourself.
 
 ### Step 6: Quick pattern recognition (no formal failure mode bucketing)
 
@@ -146,13 +119,12 @@ If overall Pass count goes up — the fix helped, continue. If it goes down — 
 
 Record the change and its effect as an `action`: `python evals/journal.py append --type action --actor vibe-eval-fast-loop --stage stage-1-vibe --summary "added 'preserve constraints' to SQL prompt; pass 7/10 -> 9/10" --refs runs/vibe_<ts>/`.
 
-## Chat Rendering Rules
+## Rendering Rules
 
-- **Markdown tables only.** No HTML, no images.
-- **Truncate input/output displays to ~80 chars** in the table; full content goes below.
-- **Code blocks for tool inputs/outputs.** Use language hints (`json`, `sql`, `python`) for syntax highlighting.
-- **No more than 10 traces per chat scroll.** If the user wants more, paginate by running smaller batches.
-- **Bold the Fail rows** for visual scanning.
+- **Trace review and annotation live in the `review.html` dashboard, not the chat.** Never render full inputs/outputs as a chat markdown table.
+- **Verbatim, copied from source.** Whenever a trace's input or output is shown anywhere, reproduce it exactly from `results.json` — copied from the file, not retyped from memory, and never shortened with `...`. Large values are what the collapsible HTML cards are for.
+- **The chat is for orientation and compact summaries only** — counts, the fix recommendation, and the re-run diff (P/F status, not trace bodies) may use small markdown tables.
+- **Review ~10 traces per sitting** for reliable human attention; the dashboard scrolls fine beyond that, but split larger batches across sittings.
 
 ## What This Skill Skips (and why that's OK at stage 1)
 
@@ -174,6 +146,8 @@ When graduating, hand off: keep `evals/context.md` (update Stage), promote `vibe
 ## Anti-Patterns
 
 - Running this skill at stage 2 or 3 just because it's faster. Skipping rigor at those stages costs more downstream than it saves.
-- Truncating storage on disk to make rendering cleaner. Display truncation only — full WYSIWYG in JSON.
+- Truncating storage on disk to make rendering cleaner. `results.json` is full WYSIWYG; the dashboard collapses, it does not shorten.
+- Pasting full trace contents into the chat instead of opening the HTML dashboard. The chat drowns and the user can't read exact outputs.
+- Populating the dashboard by retyping or summarizing outputs instead of copying `results.json` verbatim into the data placeholder.
 - Building a judge inside this skill. If the user wants a judge, they've left vibe-eval territory — graduate.
 - Generating a large input set for vanity ("more is better"). Scale past ~10 only when genuine coverage demands it, and review in batches of ~10 — vibe review of more than ~10 traces in one sitting is unreliable.
