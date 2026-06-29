@@ -1,6 +1,6 @@
 # eval-loops
 
-Skills and subagents that guide AI coding agents through the **full LLM eval lifecycle** — from gathering product context to running self-improving fix-and-ablate loops.
+Skills and subagents that guide AI coding agents through the **full LLM eval lifecycle** — from gathering product context to running self-improving fix-and-ablate loops.  
 [Read my blog for a clean quick introduction to motivation and details of my work](https://curiousadi.com/eval-loops/).
 
 `eval-loops` is a superset of [Hamel Husain's evals-skills](https://github.com/hamelsmu/evals-skills). It keeps Hamel's original skills and adds agnostic-core lifecycle skills, stage-aware orchestrators, and supervisor subagents that turn evals into repeatable loops. The original skills guard against common mistakes seen across 50+ companies and students in the [AI Evals course](https://maven.com/parlance-labs/evals?promoCode=evals-info-url); the additions wire them into an end-to-end process. If you're new to evals, see [questions.md](questions.md) for free fundamentals.
